@@ -108,6 +108,7 @@ class ChatSessionBatchDeleteRequest(OpenModel):
 
 class ChatSessionPatchRequest(OpenModel):
     display_name: str | None = None
+    is_pinned: int | None = None
 
 
 class ChatMessagePatchRequest(OpenModel):

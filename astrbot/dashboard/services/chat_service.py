@@ -1175,6 +1175,7 @@ class ChatService:
                     "creator": session.creator,
                     "display_name": session.display_name,
                     "is_group": session.is_group,
+                    "is_pinned": session.is_pinned,
                     "created_at": to_utc_isoformat(session.created_at),
                     "updated_at": to_utc_isoformat(session.updated_at),
                 }
@@ -1610,6 +1611,7 @@ class ChatService:
         username: str,
         session_id: str,
         display_name,
+        is_pinned: int | None = None,
     ) -> dict:
         session = await self.db.get_platform_session_by_id(session_id)
         if not session:
@@ -1620,6 +1622,7 @@ class ChatService:
         await self.db.update_platform_session(
             session_id=session_id,
             display_name=display_name,
+            is_pinned=is_pinned,
         )
         return {}
 

@@ -10,6 +10,7 @@ export interface Session {
     platform_id: string;
     creator: string;
     is_group: number;
+    is_pinned: number;
     created_at: string;
 }
 
@@ -27,6 +28,15 @@ export function useSessions(chatboxMode: boolean = false) {
     const getCurrentSession = computed(() => {
         if (!currSessionId.value) return null;
         return sessions.value.find(s => s.session_id === currSessionId.value);
+    });
+
+    const sortedSessions = computed(() => {
+        return [...sessions.value].sort((a, b) => {
+            if (a.is_pinned !== b.is_pinned) {
+                return b.is_pinned - a.is_pinned;
+            }
+            return 0;
+        });
     });
 
     
@@ -192,6 +202,19 @@ export function useSessions(chatboxMode: boolean = false) {
         }
     }
 
+    async function togglePin(sessionId: string, isPinned: boolean) {
+        const newValue = isPinned ? 1 : 0;
+        try {
+            await chatApi.updateSession(sessionId, { is_pinned: newValue });
+            const session = sessions.value.find(s => s.session_id === sessionId);
+            if (session) {
+                session.is_pinned = newValue;
+            }
+        } catch (err) {
+            console.error('Failed to toggle pin:', err);
+        }
+    }
+
     function newChat(closeMobileSidebar?: () => void) {
         currSessionId.value = '';
         selectedSessions.value = [];
@@ -220,6 +243,8 @@ export function useSessions(chatboxMode: boolean = false) {
         showEditTitleDialog,
         saveTitle,
         updateSessionTitle,
+        togglePin,
+        sortedSessions,
         newChat
     };
 }

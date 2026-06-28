@@ -125,6 +125,7 @@ export type ChatSessionBatchDeleteRequest = {
 
 export type ChatSessionPatchRequest = {
     display_name?: string;
+    is_pinned?: number;
 };
 
 export type ChatThreadCreateRequest = {

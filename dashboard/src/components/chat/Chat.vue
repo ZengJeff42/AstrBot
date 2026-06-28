@@ -83,7 +83,7 @@
 
       <div v-if="!isSidebarCollapsed" class="session-list">
         <div
-          v-for="session in sessions"
+          v-for="session in sortedSessions"
           :key="session.session_id"
           class="session-item"
           :class="{ active: !isProviderWorkspace && currSessionId === session.session_id }"
@@ -97,6 +97,15 @@
             sessionTitle(session)
           }}</span>
           <div class="session-actions" @click.stop>
+            <v-btn
+              :icon="session.is_pinned ? 'mdi-pin' : 'mdi-pin-outline'"
+              size="x-small"
+              variant="text"
+              class="session-action-btn"
+              :class="{ 'pin-active': session.is_pinned }"
+              :title="session.is_pinned ? tm('conversation.unpin') : tm('conversation.pin')"
+              @click="togglePin(session.session_id, !session.is_pinned)"
+            />
             <v-btn
               icon="mdi-pencil-outline"
               size="x-small"
@@ -558,12 +567,14 @@ const { languageOptions, currentLanguage, switchLanguage, locale } =
   useLanguageSwitcher();
 const {
   sessions,
+  sortedSessions,
   currSessionId,
   getSessions,
   newSession,
   newChat,
   deleteSession,
   updateSessionTitle,
+  togglePin,
 } = useSessions(props.chatboxMode);
 const {
   projects,
@@ -1578,6 +1589,10 @@ function toggleTheme() {
 
 .session-action-btn:hover {
   color: rgb(var(--v-theme-on-surface));
+}
+
+.session-action-btn.pin-active {
+  color: rgb(var(--v-theme-primary));
 }
 
 .empty-sessions {

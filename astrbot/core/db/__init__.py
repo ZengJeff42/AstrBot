@@ -806,8 +806,9 @@ class BaseDatabase(abc.ABC):
         self,
         session_id: str,
         display_name: str | None = None,
+        is_pinned: int | None = None,
     ) -> None:
-        """Update a Platform session's updated_at timestamp and optionally display_name."""
+        """Update a Platform session's updated_at timestamp and optionally display_name / is_pinned."""
         ...
 
     @abc.abstractmethod

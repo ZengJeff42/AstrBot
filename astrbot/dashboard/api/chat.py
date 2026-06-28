@@ -156,6 +156,7 @@ async def update_chat_session(
             auth.username,
             session_id,
             payload.display_name,
+            payload.is_pinned,
         )
     )
 

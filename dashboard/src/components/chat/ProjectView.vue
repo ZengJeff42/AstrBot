@@ -17,13 +17,18 @@
     <v-card flat class="project-sessions-list">
       <v-list v-if="sessions.length > 0">
         <v-list-item
-          v-for="session in sessions"
+          v-for="session in sortedSessions"
           :key="session.session_id"
           @click="$emit('selectSession', session.session_id)"
           class="project-session-item"
           rounded="lg"
         >
           <v-list-item-title>
+            <v-icon
+              v-if="session.is_pinned"
+              size="14"
+              class="pin-indicator"
+            >mdi-pin</v-icon>
             {{ session.display_name || tm("conversation.newConversation") }}
           </v-list-item-title>
           <v-list-item-subtitle>
@@ -31,6 +36,15 @@
           </v-list-item-subtitle>
           <template v-slot:append>
             <div class="session-actions">
+              <v-btn
+                :icon="session.is_pinned ? 'mdi-pin' : 'mdi-pin-outline'"
+                size="x-small"
+                variant="text"
+                class="edit-session-btn"
+                :class="{ 'pin-active': session.is_pinned }"
+                :title="session.is_pinned ? tm('conversation.unpin') : tm('conversation.pin')"
+                @click.stop="handleTogglePin(session)"
+              />
               <v-btn
                 icon="mdi-pencil"
                 size="x-small"
@@ -69,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { chatApi } from "@/api/v1";
 import { useModuleI18n } from "@/i18n/composables";
 import type { Project } from "@/components/chat/ProjectList.vue";
 import { askForConfirmation, useConfirmDialog } from "@/utils/confirmDialog";
@@ -77,6 +93,7 @@ interface Session {
   session_id: string;
   display_name?: string | null;
   updated_at: string;
+  is_pinned?: number;
 }
 
 interface Props {
@@ -84,7 +101,7 @@ interface Props {
   sessions: Session[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   selectSession: [sessionId: string];
@@ -95,6 +112,25 @@ const emit = defineEmits<{
 const { tm } = useModuleI18n("features/chat");
 
 const confirmDialog = useConfirmDialog();
+
+const sortedSessions = computed(() => {
+  return [...props.sessions].sort((a, b) => {
+    if ((a.is_pinned || 0) !== (b.is_pinned || 0)) {
+      return (b.is_pinned || 0) - (a.is_pinned || 0);
+    }
+    return 0;
+  });
+});
+
+async function handleTogglePin(session: Session) {
+  const newValue = session.is_pinned ? 0 : 1;
+  try {
+    await chatApi.updateSession(session.session_id, { is_pinned: newValue });
+    session.is_pinned = newValue;
+  } catch (err) {
+    console.error("Failed to toggle pin:", err);
+  }
+}
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleString();
@@ -180,6 +216,16 @@ async function handleDeleteSession(session: Session) {
   display: flex;
   gap: 2px;
   opacity: 1;
+}
+
+.edit-session-btn.pin-active {
+  color: rgb(var(--v-theme-primary));
+}
+
+.pin-indicator {
+  color: rgb(var(--v-theme-primary));
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .no-sessions-in-project {

@@ -82,7 +82,9 @@
     "displayName": "Session Name",
     "displayNameUpdated": "Session name updated",
     "displayNameUpdateFailed": "Failed to update session name",
-    "confirmDelete": "Are you sure you want to delete \"{name}\"? This action cannot be undone."
+    "confirmDelete": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "pin": "Pin",
+    "unpin": "Unpin"
   },
   "modes": {
     "darkMode": "Switch to Dark Mode",
